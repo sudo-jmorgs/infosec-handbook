@@ -1,4 +1,4 @@
-# infosec-handbook
+# infosec-handbook (Best read in raw)
 Collection of bits and bobs that help me in a variety of contexts; work, dev, red, blue and osint. 
 
 I use linux a bit so these notes are mainly for me so I don't have to rediscover everything when I need a thing and partly for you.
@@ -72,3 +72,4 @@ dmesg
 
 filter for errors
 dmesg | grep -i error
+
