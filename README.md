@@ -73,3 +73,68 @@ dmesg
 filter for errors
 dmesg | grep -i error
 
+**Docker containers not starting up**
+Check docker is running
+sudo systemctl status docker*
+
+Look for errors.
+start/restart docker as necessary.
+
+sudo systemctl restart docker.service
+
+Look for specific service not running or is actually installed 
+docker ps -a | grep juice
+ebf204164691   bkimminich/juice-shop          "/nodejs/bin/node no…"   8 weeks ago    Exited (137) 8 weeks ago              juice-shop
+
+Above shows juiceshop is installed and last ran 8 weeks ago.
+
+Try starting it
+sudo docker start juice-shop
+
+Try connect to it
+└─$ curl http://127.0.0.1:3000/
+curl: (7) Failed to connect to 127.0.0.1 port 3000 after 0 ms: Could not connect to server
+
+Enter the container shell
+└─$ sudo docker exec -it juice-shop bash
+Error response from daemon: Container ebf20416469178a5f3c2da5ca821e2cd24f3cdf628afd495ebf15d96da567ed8 is restarting, wait until the container is running
+
+Container is stuck in a crash / restart loop, which is why you can’t exec into it.
+
+Check why its crashing
+sudo docker logs juice-shop --tail 50
+Error: Cannot find module '/juice-shop/node'
+
+We have a bunch of errors showing corruption or deletion of the container 
+
+Remove and reinstall container.
+sudo docker rm -f juice-shop
+
+Pull a fresh, clean Juice Shop image
+sudo docker pull bkimminich/juice-shop
+
+Create a new container
+sudo docker run -d -p 3000:3000 --name juice-shop bkimminich/juice-shop
+
+Check new container
+sudo docker ps
+CONTAINER ID   IMAGE                   COMMAND                  CREATED          STATUS          PORTS                                       NAMES
+c9ef1d2fc367   bkimminich/juice-shop   "/nodejs/bin/node /j…"   50 seconds ago   Up 46 seconds   0.0.0.0:3000->3000/tcp, :::3000->3000/tcp   juice-shop
+
+
+sudo docker logs juice-shop --tail 20
+info: Detected Node.js version v22.21.1 (OK)
+info: Detected OS linux (OK)
+info: Detected CPU x64 (OK)
+info: Configuration default validated (OK)
+info: Entity models 20 of 20 are initialized (OK)
+info: Required file server.js is present (OK)
+info: Required file index.html is present (OK)
+info: Required file main.js is present (OK)
+info: Required file tutorial.js is present (OK)
+info: Required file runtime.js is present (OK)
+info: Required file styles.css is present (OK)
+info: Required file vendor.js is present (OK)
+info: Port 3000 is available (OK)
+info: Domain https://www.alchemy.com/ is reachable (OK)
+info: Chatbot training data botDefaultTrainingData.json validated (OK)
